@@ -2,7 +2,7 @@ import math
 import json
 import logging
 import sys
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from collections import Counter
 
 
@@ -11,9 +11,11 @@ from collections import Counter
 
 
 class FactorisedNumber(BaseModel):
-    factors: list[int] = []
-    rest: int
-    complex_number: bool = True
+    factors: list[int] = Field(default=[], description="Prime factors of the number")
+    rest: int = Field(description="Left over, used for calculation")
+    complex_number: bool = Field(default=True, description="Is the number a complex number or a prime")
+    def get_value(self):
+        return math.prod(self.factors)
 
 class FactorizeSmarter:
     def __init__(self):
@@ -135,5 +137,6 @@ if __name__ == "__main__":
     fz = FactorizeSmarter()
     fs_first = fz.factoize(80)
     fs_second = fz.factoize(54)
+    print(fs_first.get_value())
     lcm = fz.lowest_common_multiplier([fs_first, 15, 45])
 
