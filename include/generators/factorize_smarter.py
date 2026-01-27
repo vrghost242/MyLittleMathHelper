@@ -1,6 +1,14 @@
 import math
 import json
+import logging
+import sys
 from pydantic import BaseModel
+from collections import Counter
+
+
+
+
+
 
 class FactorisedNumber(BaseModel):
     factors: list[int] = []
@@ -21,15 +29,86 @@ class FactorizeSmarter:
                 yield (num)
             num += 1
 
+    def highest_common_factor(self, numbers: list):
+        # In case we only got one number, lets just return it (the HCF of a single int is itself
+        if len(numbers) == 1:
+            if isinstance(numbers[0], FactorisedNumber):
+                return math.prod(numbers[0].factor)
+            return numbers[0]
 
-    def higest_common_factor(self, first: FactorisedNumber, second: FactorisedNumber):
+        # Next lets check that we only received either integers or FactorisedNumbers
+        _numbers = []
+        for pos in range(0,len(numbers)):
+            number = numbers[pos]
+            if isinstance(number, FactorisedNumber):
+                _numbers.append(number)
+            elif isinstance(number, int):
+                _numbers.append(self.factoize(number))
+            else:
+                logging.error(f"Unsupported type {type(number)} at postition {pos} in input value {number}")
+                raise TypeError(f"Unsupported type {type(number)}")
+
+        # Now lets get counters of the primes in each factorised number and a list of all primes
+        prime_counters = [Counter(number.factors) for number in _numbers]
+
+        primes=[number.factors for number in _numbers]
+        primes=list(set([num for lst in primes for num in lst]))
+
+        #Lets calculate the HCF by going through the primes, starting on 1 (as all integers are divisible by 1
+        hcf = 1
+        for prime in primes:
+            lowest_number_of_primes = min([ count[prime] for count in prime_counters])
+            hcf = hcf * prime ** lowest_number_of_primes
+
+
+        logging.debug(f"We got the prime factors {prime_counters}")
+        logging.debug(f"And the Highest common factor is {hcf}")
+        return hcf
+
+    def lowest_common_multiplier(self, numbers: list):
+        # In case we only got one number, lets just return it (the LCM of a single int is itself
+        if len(numbers) == 1:
+            if isinstance(numbers[0], FactorisedNumber):
+                return math.prod(numbers[0].factor)
+            return numbers[0]
+
+        # Next lets check that we only received either integers or FactorisedNumbers
+        _numbers = []
+        for pos in range(0,len(numbers)):
+            number = numbers[pos]
+            if isinstance(number, FactorisedNumber):
+                _numbers.append(number)
+            elif isinstance(number, int):
+                _numbers.append(self.factoize(number))
+            else:
+                logging.error(f"Unsupported type {type(number)} at postition {pos} in input value {number}")
+                raise TypeError(f"Unsupported type {type(number)}")
+
+        # Now lets get counters of the primes in each factorised number and a list of all primes
+        prime_counters = [Counter(number.factors) for number in _numbers]
+
+        primes=[number.factors for number in _numbers]
+        primes=list(set([num for lst in primes for num in lst]))
+
+        #Lets calculate the LCM by going through the primes, starting on 1
+        lcm = 1
+        for prime in primes:
+            highest_number_of_primes = max([ count[prime] for count in prime_counters])
+            lcm = lcm * prime ** highest_number_of_primes
+
+
+        logging.debug(f"We got the prime factors {prime_counters}")
+        logging.debug(f"And the Highest common factor is {lcm}")
+        return lcm
+
+
+
+
     def factoize(self, complex_number: int) -> FactorisedNumber:
         response = FactorisedNumber(
             rest=complex_number
         )
-        last_known_prime = self.primes[-1]
         current_prime_possition = -1
-        current_prime = self.primes[current_prime_possition]
         while math.prod(response.factors) != complex_number:
             if current_prime_possition < len(self.primes)-1:
                 current_prime_possition += 1
@@ -52,11 +131,9 @@ class FactorizeSmarter:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     fz = FactorizeSmarter()
-    for i in range(20):
-        next(fz.prime_gen)
-    print(fz.primes)
-    for i in [17 , 167, 166, 160, 15, 3600]:
-        print(f"Factorising {i}")
-        print(json.dumps(fz.factoize(i).model_dump(), indent=4))
+    fs_first = fz.factoize(80)
+    fs_second = fz.factoize(54)
+    lcm = fz.lowest_common_multiplier([fs_first, 15, 45])
 
