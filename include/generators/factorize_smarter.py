@@ -14,8 +14,7 @@ class FactorisedNumber(BaseModel):
     factors: list[int] = Field(default=[], description="Prime factors of the number")
     rest: int = Field(description="Left over, used for calculation")
     complex_number: bool = Field(default=True, description="Is the number a complex number or a prime")
-    def get_value(self):
-        return math.prod(self.factors)
+    value: int = Field(default=None, description="The value of the number with sign")
 
 class FactorizeSmarter:
     def __init__(self):
@@ -108,7 +107,8 @@ class FactorizeSmarter:
 
     def factoize(self, complex_number: int) -> FactorisedNumber:
         response = FactorisedNumber(
-            rest=complex_number
+            rest=complex_number,
+            value= complex_number
         )
         current_prime_possition = -1
         while math.prod(response.factors) != complex_number:
@@ -126,7 +126,7 @@ class FactorizeSmarter:
 
 
 
-        if complex_number != response.factors[0]:
+        if complex_number == response.factors[0]:
             response.complex_number = False
         return response
 
@@ -137,6 +137,6 @@ if __name__ == "__main__":
     fz = FactorizeSmarter()
     fs_first = fz.factoize(80)
     fs_second = fz.factoize(54)
-    print(fs_first.get_value())
+    print(fs_first.value)
     lcm = fz.lowest_common_multiplier([fs_first, 15, 45])
 
