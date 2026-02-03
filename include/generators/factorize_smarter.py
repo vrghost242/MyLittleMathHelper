@@ -1,12 +1,19 @@
 import math
 import json
-import logging
+
+from numpy.ma.core import absolute
+
+from include.logger import Logger
+
 import sys
 from pydantic import BaseModel, Field
 from collections import Counter
+from fractions import Fraction
+from timeit import default_timer as timer
 
 
-
+log = Logger("factorize")
+LOG_LEVEL = "DEBUG"
 
 
 
@@ -14,12 +21,18 @@ class FactorisedNumber(BaseModel):
     factors: list[int] = Field(default=[], description="Prime factors of the number")
     rest: int = Field(description="Left over, used for calculation")
     complex_number: bool = Field(default=True, description="Is the number a complex number or a prime")
+    surd: int = 0
+    surd_radical_index: int = 2
     value: int = Field(default=None, description="The value of the number with sign")
+
+
 
 class FactorizeSmarter:
     def __init__(self):
         self.primes=[]
         self.prime_gen = self.prime_generator()
+
+
 
     def prime_generator(self):
         '''Generates primes, it remember the last prime it generated, and yields once it has found the next one'''
@@ -46,7 +59,7 @@ class FactorizeSmarter:
             elif isinstance(number, int):
                 _numbers.append(self.factoize(number))
             else:
-                logging.error(f"Unsupported type {type(number)} at postition {pos} in input value {number}")
+                log.error(f"Unsupported type {type(number)} at postition {pos} in input value {number}")
                 raise TypeError(f"Unsupported type {type(number)}")
 
         # Now lets get counters of the primes in each factorised number and a list of all primes
@@ -62,8 +75,8 @@ class FactorizeSmarter:
             hcf = hcf * prime ** lowest_number_of_primes
 
 
-        logging.debug(f"We got the prime factors {prime_counters}")
-        logging.debug(f"And the Highest common factor is {hcf}")
+        log.debug(f"We got the prime factors {prime_counters}")
+        log.debug(f"And the Highest common factor is {hcf}")
         return hcf
 
     def lowest_common_multiplier(self, numbers: list):
@@ -82,7 +95,7 @@ class FactorizeSmarter:
             elif isinstance(number, int):
                 _numbers.append(self.factoize(number))
             else:
-                logging.error(f"Unsupported type {type(number)} at postition {pos} in input value {number}")
+                log.error(f"Unsupported type {type(number)} at postition {pos} in input value {number}")
                 raise TypeError(f"Unsupported type {type(number)}")
 
         # Now lets get counters of the primes in each factorised number and a list of all primes
@@ -98,8 +111,8 @@ class FactorizeSmarter:
             lcm = lcm * prime ** highest_number_of_primes
 
 
-        logging.debug(f"We got the prime factors {prime_counters}")
-        logging.debug(f"And the Highest common factor is {lcm}")
+        log.debug(f"We got the prime factors {prime_counters}")
+        log.debug(f"Lowest common multiplier is {lcm}")
         return lcm
 
 
@@ -133,10 +146,20 @@ class FactorizeSmarter:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    log = Logger('FACTORIZE')
+    log.console.setLevel(LOG_LEVEL)
+
     fz = FactorizeSmarter()
-    fs_first = fz.factoize(80)
-    fs_second = fz.factoize(54)
-    print(fs_first.value)
+    fs_first = fz.factoize(180)
+    log.info(f"Testing getting Lowest Common Multiplier for {fs_first.value}, 15, 45")
+    time = timer()
     lcm = fz.lowest_common_multiplier([fs_first, 15, 45])
+    log.info(f"Lowest Common Multiplier (LCM): {lcm} - Took {timer() - time} seconds")
+
+    log.info(f"Testing getting Highest Common Factor for {fs_first.value}, 15, 45")
+    time = timer()
+    hcf = fz.highest_common_factor([fs_first, 15, 45])
+    log.info(f"Highest Common Factor (HCM): {hcf} - Took {timer() - time} seconds")
+
+
 
