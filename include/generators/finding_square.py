@@ -126,10 +126,15 @@ class FindingSquare:
         log.debug(f"Found distane^2 = {d2}")
         d, r = root.prime_roots(abs(d2))
         log.debug(f"Found Distance between the point and midpoint = {d} square root of {r}")
-        term1 = m + d + math.sqrt(r)
-        term2 = m - d - math.sqrt(r)
+        term1 = sum / 2 - d
+        term2 = sum / 2 + d
         log.debug(f"Found terms {term1} and {term2}")
         return Fraction(term1), Fraction(term2)
+
+    def find_square_simpler(self, b_prime: int | Fraction, c_prime: int) -> tuple[Fraction, Fraction]:
+        """Finds the square of a number using a simpler method
+        Implement b and c prime function based on a (so b' = b/a"""
+
 
 
 if __name__ == '__main__':
@@ -146,6 +151,12 @@ if __name__ == '__main__':
 
     fs_first = Fraction('8')
     fs_second = Fraction('12')
+    time = timer()
+    pair2 = sq.find_sum_product_pair_by_math(fs_first, fs_second)
+    log.info(f"Got the following pair by math {pair2} - Took {timer() - time} seconds")
+
+    fs_first = Fraction('603')
+    fs_second = Fraction('1800')
     time = timer()
     pair2 = sq.find_sum_product_pair_by_math(fs_first, fs_second)
     log.info(f"Got the following pair by math {pair2} - Took {timer() - time} seconds")
