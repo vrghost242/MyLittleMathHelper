@@ -1,7 +1,7 @@
 import math
 import json
 
-from numpy.ma.core import absolute
+
 
 from include.logger import Logger
 
@@ -139,8 +139,8 @@ class FactorizeSmarter:
 
 
 
-        if complex_number == response.factors[0]:
-            response.complex_number = False
+        # if complex_number == response.factors[0]:
+        #     response.complex_number = False
         return response
 
 

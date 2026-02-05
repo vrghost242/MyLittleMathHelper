@@ -14,9 +14,9 @@ fz = FactorizeSmarter()
 root = Root()
 
 class FindingSquare:
-    def _permutation_loop(self, factorlist: list, t1_length: int):
+    def _permutation_loop(self, factorlist: list, t1_length: int, log_level: str = LOG_LEVEL):
         log = Logger(f'_PERMUTATION {t1_length}')
-        log.console.setLevel(LOG_LEVEL)
+        log.console.setLevel(log_level)
         last_factor = 1
         for i in range(0, len(factorlist)):
             _cur_list = factorlist.copy()
@@ -36,9 +36,9 @@ class FindingSquare:
                     for _child_pair in self._permutation_loop(_cur_list, t1_length - 1):
                         yield term_1 * _child_pair[0], _child_pair[1]
 
-    def permutator(self, factorlist: list):
+    def permutator(self, factorlist: list, log_level: str = LOG_LEVEL):
         log=Logger('PERMUTATOR')
-        log.console.setLevel(LOG_LEVEL)
+        log.console.setLevel(log_level)
         last_term = 1
         permutations = 1
         # Lets first sort out 1, as that is always an option
@@ -47,10 +47,10 @@ class FindingSquare:
             log.info(f"Starting permutation loop with {t1_length} / {len(factorlist) // 2} factors left")
             yield from self._permutation_loop(factorlist, t1_length)
 
-    def find_sum_product_pair_by_primes(self, sum: int | Fraction | FactorisedNumber, product: int | Fraction | FactorisedNumber) -> \
+    def find_sum_product_pair_by_primes(self, sum: int | Fraction | FactorisedNumber, product: int | Fraction | FactorisedNumber, log_level: str = LOG_LEVEL) -> \
     tuple[Fraction, Fraction]:
         log=Logger('PRODUCT PAIR')
-        log.console.setLevel(LOG_LEVEL)
+        log.console.setLevel(log_level)
         # First lets make certain we have a factorised number
         if isinstance(sum, Fraction) | isinstance(product, int):
             product = fz.factoize(product)
@@ -98,7 +98,7 @@ class FindingSquare:
         if sum.value < 0 and product.value < 0:
             pass
 
-    def find_sum_product_pair_by_math(self, sum: int | Fraction | FactorisedNumber, product: int | Fraction | FactorisedNumber) -> \
+    def find_sum_product_pair_by_math(self, sum: int | Fraction | FactorisedNumber, product: int | Fraction | FactorisedNumber, log_level: str = LOG_LEVEL) -> \
     tuple[Fraction, Fraction]:
         '''
         We are looking for two values, that must follow the pattern
@@ -111,7 +111,7 @@ class FindingSquare:
         :return:
         '''
         log=Logger('CALC PAIR')
-        log.console.setLevel('DEBUG')
+        log.console.setLevel(log_level)
         # First lets make certain we have a factorised number
         # if isinstance(sum, Fraction) | isinstance(product, int):
         #     product = self.factoize(product)
@@ -120,15 +120,15 @@ class FindingSquare:
 
         #This is the median between the two points (-b`/2), so b' because X does not get to play at all :)
         m = -sum / 2
-        log.debug(f"Found midpoint m = {m}")
+        log.debug(f"For {sum} we set the midpoint to m = {m}")
         # So lets see what the suare of the difference is
         d2 = m**2 - product
-        log.debug(f"Found distane^2 = {d2}")
+        log.debug(f"The square of m is {m**2}, minus product {product} gives us distane = {d2}")
         d, r = root.prime_roots(abs(d2))
-        log.debug(f"Found Distance between the point and midpoint = {d} square root of {r}")
+        log.debug(f"The square root is {d} with surd {r}")
         term1 = sum / 2 - d
         term2 = sum / 2 + d
-        log.debug(f"Found terms {term1} and {term2}")
+        log.debug(f"Returning {term1} and {term2}")
         return Fraction(term1), Fraction(term2)
 
     def find_square_simpler(self, b_prime: int | Fraction, c_prime: int) -> tuple[Fraction, Fraction]:
@@ -139,24 +139,25 @@ class FindingSquare:
 
 if __name__ == '__main__':
     sq = FindingSquare()
-    fs_first = -603
-    fs_second = 1800
-    log.info(f"Testing finding sum product pair for {fs_first} and {fs_second}")
-    time = timer()
-    pair = sq.find_sum_product_pair_by_primes(fs_first, fs_second)
-    if pair[0] == 0 and pair[1] == 0:
-        log.error(f"Could not find a pair for {fs_first} and {fs_second}")
-    else:
-        log.info(f"Got the following pair by prime {pair} - Took {timer() - time} seconds")
+    for i in [[-603, 1800], [-597, -1800], [86, 1800]]:
+        log.info(f"Testing finding sum product pair for {i[0]} and {i[1]}")
+        time = timer()
+        pair = sq.find_sum_product_pair_by_primes(i[0], i[1])
+        if pair[0] == 0 and pair[1] == 0:
+            log.error(f"Could not find a pair for {i[0]} and {i[1]}")
+        else:
+            log.info(f"Got the following pair by prime {pair} - Took {timer() - time} seconds")
 
     fs_first = Fraction('8')
     fs_second = Fraction('12')
     time = timer()
     pair2 = sq.find_sum_product_pair_by_math(fs_first, fs_second)
     log.info(f"Got the following pair by math {pair2} - Took {timer() - time} seconds")
-
-    fs_first = Fraction('603')
-    fs_second = Fraction('1800')
-    time = timer()
-    pair2 = sq.find_sum_product_pair_by_math(fs_first, fs_second)
-    log.info(f"Got the following pair by math {pair2} - Took {timer() - time} seconds")
+    for i in [[-603, 1800], [-597, -1800], [86, 1800], [8, 12]]:
+        log.info("----------------------------------------")
+        log.info(f"Testing finding sum product pair for {i[0]} and {i[1]}")
+        fs_first = Fraction(i[0])
+        fs_second = Fraction(i[1])
+        time = timer()
+        pair2 = sq.find_sum_product_pair_by_math(fs_first, fs_second)
+        log.info(f"Got the following pair by math {pair2} - Took {timer() - time} seconds")

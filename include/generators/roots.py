@@ -16,13 +16,16 @@ logLevel = "DEBUG"
 class Root:
     def __init__(self):
         self.fz = FactorizeSmarter()
-    def prime_roots(self, radicand: int|FactorisedNumber|Fraction|float, radical_index: int = 2):
+    def prime_roots(self, radicand: int|FactorisedNumber|Fraction|float, radical_index: int = 2, log_level: str = logLevel):
+        log.console.setLevel(log_level)
         if isinstance(radicand, int):
             radicand = self.fz.factoize(radicand)
         elif isinstance(radicand, Fraction):
-            log.warning(f"Converting Fractions not implemented yet")
-            log.warning(f"Converting {radicand} to {int(radicand)}")
-            radicand = self.fz.factoize(int(radicand))
+            log.debug(f"root for fractions will run two, one for numerator {radicand.numerator} and one for denominator {radicand.denominator}")
+            numerator, numerator_surd = self.prime_roots(radicand.numerator)
+            denominator, denominator_surd = self.prime_roots(radicand.denominator)
+            log.debug(f"numerator {numerator} numerator_surd {numerator_surd} denominator {denominator} denominator_surd {denominator_surd}")
+            return Fraction(numerator, denominator), Fraction(numerator_surd, denominator_surd)
         elif isinstance(radicand, float):
             log.warning(f"Converting floats not implemented yet")
             return None
@@ -66,3 +69,5 @@ if __name__ == "__main__":
     root.prime_roots(180)
     root.prime_roots(256,3)
     root.prime_roots(8, 2)
+    root.prime_roots(89102, 2)
+    root.prime_roots(Fraction(1234567890, 2))
