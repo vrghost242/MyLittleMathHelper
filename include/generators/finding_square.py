@@ -9,14 +9,13 @@ import math
 
 
 log = Logger("squares")
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "INFO"
 fz = FactorizeSmarter()
 root = Root()
 
 class FindingSquare:
     def _permutation_loop(self, factorlist: list, t1_length: int, log_level: str = LOG_LEVEL):
-        log = Logger(f'_PERMUTATION {t1_length}')
-        log.console.setLevel(log_level)
+
         last_factor = 1
         for i in range(0, len(factorlist)):
             _cur_list = factorlist.copy()
@@ -37,8 +36,7 @@ class FindingSquare:
                         yield term_1 * _child_pair[0], _child_pair[1]
 
     def permutator(self, factorlist: list, log_level: str = LOG_LEVEL):
-        log=Logger('PERMUTATOR')
-        log.console.setLevel(log_level)
+
         last_term = 1
         permutations = 1
         # Lets first sort out 1, as that is always an option
@@ -49,8 +47,7 @@ class FindingSquare:
 
     def find_sum_product_pair_by_primes(self, sum: int | Fraction | FactorisedNumber, product: int | Fraction | FactorisedNumber, log_level: str = LOG_LEVEL) -> \
     tuple[Fraction, Fraction]:
-        log=Logger('PRODUCT PAIR')
-        log.console.setLevel(log_level)
+
         # First lets make certain we have a factorised number
         if isinstance(sum, Fraction) | isinstance(product, int):
             product = fz.factoize(product)
@@ -110,8 +107,7 @@ class FindingSquare:
         :param product:
         :return:
         '''
-        log=Logger('CALC PAIR')
-        log.console.setLevel(log_level)
+
         # First lets make certain we have a factorised number
         # if isinstance(sum, Fraction) | isinstance(product, int):
         #     product = self.factoize(product)
@@ -153,7 +149,7 @@ if __name__ == '__main__':
     time = timer()
     pair2 = sq.find_sum_product_pair_by_math(fs_first, fs_second)
     log.info(f"Got the following pair by math {pair2} - Took {timer() - time} seconds")
-    for i in [[-603, 1800], [-597, -1800], [86, 1800], [8, 12]]:
+    for i in [[8, 12],[-603, 1800], [-597, -1800], [86, 1800], [-4, -12]]:
         log.info("----------------------------------------")
         log.info(f"Testing finding sum product pair for {i[0]} and {i[1]}")
         fs_first = Fraction(i[0])
