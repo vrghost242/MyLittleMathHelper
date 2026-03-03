@@ -4,6 +4,7 @@ import json
 
 
 from include.logger import Logger
+from include.data_types import FactorisedNumber
 
 import sys
 from pydantic import BaseModel, Field
@@ -15,15 +16,6 @@ from timeit import default_timer as timer
 log = Logger("factorize")
 LOG_LEVEL = "DEBUG"
 
-
-
-class FactorisedNumber(BaseModel):
-    factors: list[int] = Field(default=[], description="Prime factors of the number")
-    rest: int = Field(description="Left over, used for calculation")
-    complex_number: bool = Field(default=True, description="Is the number a complex number or a prime")
-    surd: int = 0
-    surd_radical_index: int = 2
-    value: int = Field(default=None, description="The value of the number with sign")
 
 
 
