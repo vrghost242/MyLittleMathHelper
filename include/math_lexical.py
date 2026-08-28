@@ -4,58 +4,94 @@ from include.data_types import FactorisedNumber, Term
 from include.generators.factorize_smarter import FactorizeSmarter
 
 
-class transcendental_functions(Enum):
-    SIN = "sin"
-    COS = "cos"
-    TAN = "tan"
-    LOG = "log"
-    E = "e"
+transcendental_functions=[
+    "sin",
+    "cos",
+    "tan",
+    "log",
+    "e"
+]
 
 
-class operators(Enum):
-    ADD = "+"
-    SUBTRACT = "-"
-    MULTIPLY = "*"
-    DIVIDE = "/"
-    POWER = "**"
 
-class special_characters(Enum):
-    OPEN_PARENTHESIS = "("
-    CLOSE_PARENTHESIS = ")"
-    OPEN_SQUARE_BRACKET = "["
-    CLOSE_SQUARE_BRACKET = "]"
-    OPEN_CURLY_BRACKET = "{"
-    CLOSE_CURLY_BRACKET = "}"
-    SPACE = " "
+operators=[
+    "+",
+    "-",
+    "*",
+    "/",
+    "**"
+]
+
 
 """
 This is a lexical that converts a mathematical equation as a string and builds it into a tree structure of terms
 
 """
 
+def next_alpha(s):
+    return chr(ord(s) + 1)
 
+def is_number(number: str):
+    try:
+        int(number)
+        return True
+    except ValueError:
+        return False
 
+def is_float(number: str):
+    try:
+        float(number)
+        return True
+    except ValueError:
+        return False
+
+def is_transendent_function(term: str):
+    if term in transcendental_functions:
+        return True
+    else:
+        return False
+
+def argument_type(arg: str):
+    if arg in operators:
+        return "OPERATOR"
+    elif arg in transcendental_functions:
+        return "TRANSCENDENT"
+    elif is_number(arg):
+        return "NUMBER"
+    elif is_float(arg):
+        return "FLOAT"
 
 class MathLexical:
     def __init__(self):
         self.fz = FactorizeSmarter()
-    def is_number(self, number: str):
-        try:
-            int(number)
-            return True
-        except ValueError:
-            return False
-    def is_float(self, number: str):
-        try:
-            float(number)
-            return True
-        except ValueError:
-            return False
+
+    def compile(self, function: list, functionid: str):
+        print(f"Compiling {function}")
+
+        # Lets first break up if someone has not left any space between opperators
+        _function = []
+
+        print(f"Compiling {_function}")
+        arg_type_list = []
+        for arg in _function:
+            print(f"Compiling {arg}")
+            arg_type_list.append(argument_type(arg))
+
+        match arg_type_list:
+            case [ "NUMBER", "OPERATOR", "NUMBER"]:
+                print("You just sent a factor")
+            case _:
+                print(f"You send {arg_type_list}")
+        # Lets figure out if we have any variables or trancendental functions
+
+
+
+        return(f"{functionid}(x)")
     def decode(self, expression: str):
         level = 0
         lexical = { 0: []
         }
-
+        functionid = "f"
         equation = list[Term]
         numerator = True #Keeps track of if we are currently working on numerator or denominator
         lexeme = ""
@@ -64,13 +100,13 @@ class MathLexical:
 
             match char:
                 case " ":
-                    print(f"At {pos} lexeme {lexeme} ({len(lexeme)}), char '{char}' with level {level}")
+
                     if len(lexeme) > 0:
-                        print(f"Adding {lexeme} to lexical")
+
                         print(lexical)
                         lexical[level].append(lexeme)
-                        if self.is_number(lexeme):
-                            print(f"{lexeme} is a number, adding to term")
+                        if is_number(lexeme):
+
                             number = self.fz.factoize(int(lexeme))
                             if numerator:
                                 term.coefficient_numerator = number
@@ -80,7 +116,7 @@ class MathLexical:
                     lexeme = ""
                 case "(":
                     if len(lexeme) > 0:
-                        print(f"Adding {lexeme} to lexical")
+
                         lexical[level].append(lexeme)
 
                     level += 1
@@ -88,14 +124,17 @@ class MathLexical:
                     lexeme = ""
                 case ")":
                     if len(lexeme) > 0:
-                        print(f"Adding {lexeme} to lexical")
+
                         lexical[level].append(lexeme)
+                    function = self.compile(lexical[level], functionid)
+                    functionid = next_alpha(functionid)
                     level -= 1
+                    lexical[level].append(function)
                     lexeme = ""
                 case _:
                     lexeme += char
         if len(lexeme) > 0:
-            print(f"Adding {lexeme} to lexical")
+
             lexical[level].append(lexeme)
 
         print(lexical)
